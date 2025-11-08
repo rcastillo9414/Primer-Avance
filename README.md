@@ -2,7 +2,7 @@
 
 Sistema Administrativo - Rikimaka - by Pikako
 
-## Convenciones de Nomenclatura y Formato de Código
+## Convenciones de nomenclatura y formato de Código
 
 - Utilizar **camelCase** para nombres de variables y funciones.
 - Usar **PascalCase** para nombres de clases.
@@ -30,7 +30,7 @@ Uso: Se utiliza para los nombres de archivos. Por ejemplo:
 gestor-de-usuarios.js
 funciones-utiles.py.
 
-## Estrategia de Branches y Commits
+## Estrategia para branches y commits 
 
 - Los mensajes de commit siguen la convención **[tipo]: [descripción]**.
 - Tipos de commit:
@@ -40,7 +40,14 @@ funciones-utiles.py.
   - `style`: Cambios de formato (sin cambios en el código)
   - `test`: Añadir o modificar pruebas
 
+  ## Informacion sobre banches 
+
+  - 'feat': EL responsable del branch o nombre de usuario de git de la persona que la creo 
+  - 'Descripcion': Informacion detallada sobre el motivo cual fue creado el branch
+
 ## Configuración del Proyecto
 
 - Instrucciones sobre cómo clonar el repositorio y ejecutar el proyecto.
 - Dependencias necesarias y cómo instalarlas.
+
+A este momento como el sistema no se ha desarrollado, no se pueden brindar instrucciones sobre como se podra instalar o utilizar. 

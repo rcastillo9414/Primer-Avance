@@ -1,30 +1,29 @@
 # Requerimientos Funcionales
 
 ## RF1 – Gestión de días feriados y vacaciones
-El sistema deberá permitir al Administrador de Talento Humano definir, modificar y eliminar los días feriados y los períodos de vacaciones permitidos para los trabajadores.
+El administrador de talento humano podra definir y actualizar los dias feriados y los periodos de vacaciones permitidos en un sistema.
 
 ## RF2 – Solicitud y aprobación de vacaciones
-El sistema deberá permitir a los Trabajadores registrar solicitudes de vacaciones y al Administrador revisarlas, aprobarlas o rechazarlas con observaciones.
+Los administradores podran recibir y aprobar o rechazar las solicitudes de vacaciones que envien los trabajadores. 
 
 ## RF3 – Registro diario de actividades
-El sistema deberá permitir a cada Trabajador registrar su reporte diario de actividades, indicando los proyectos en los que participó, las tareas realizadas, las horas dedicadas y el estado final de cada tarea.
+Se podran registrar las horas dedicadas a cada proyecto asignado en cada tarea para comparar costos con el presupuesto asignado.
 
 ## RF4 – Gestión de proyectos
-El sistema deberá permitir al Personal de TI crear, editar, eliminar y mantener un catálogo de proyectos con sus metadatos (presupuesto, recursos asignados, fechas, responsable, etc.).
+El personal de IT podrá crear y mantener un catálogo de proyectos, añadiendo información como presupuesto, recursos y trabajadores asignados.
 
 ## RF5 – Asociación de trabajadores a proyectos
 El sistema deberá permitir al Personal de TI asignar y gestionar la relación entre los trabajadores y los proyectos definidos.
 
-## RF6 – Generación de reportes y estadísticas
-El sistema deberá generar reportes consolidados para el Administrador de Talento Humano, incluyendo:
+## RF6 – Visualizacion de calendario
+Los colaboradores tendran acceso a un calendario donde podran ver los dias feriados y solicitar sus vacaciones. 
 
-Total de horas trabajadas por proyecto.
+## RF7 - Asignacion de tareas 
+Las tareas se asignaran segun disponibilidad en cada proyecto. 
 
-Comparativo de eficiencia frente al presupuesto y recursos.
+## RF8 -  Estado de Tareas:
 
-Distribución de carga laboral.
-
-Métricas de productividad.
+Los trabajadores podrán actualizar el estado final de cada tarea que realicen, lo que permitirá un mejor seguimiento del progreso y quien hizo la actualizacion final a cada tarea. 
 
 ## Notas
 
