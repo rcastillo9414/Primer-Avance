@@ -13,15 +13,13 @@ const app = express();
 // Sin esta llamada, la API no podría leer/escribir datos.
 connectDB();
 
-// Middleware que habilita CORS para permitir peticiones desde otro dominio,
-// ej. un frontend en localhost:5173 o un dominio diferente.
+// Middleware que habilita CORS para permitir peticiones desde otro dominio
 app.use(cors());
 
 // Middleware que permite a Express interpretar JSON en las peticiones.
 // Necesario para manejar POST, PUT, PATCH con cuerpos en formato JSON.
 app.use(express.json());
 
-// Sirve archivos estáticos desde la carpeta "public".
 // Esto permite a Express entregar HTML, CSS, JS e imágenes sin definir rutas manuales.
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -32,7 +30,6 @@ app.use('/api/auth', require('./routes/auth'));
 
 // Fallback para aplicaciones tipo Single Page Application (SPA).
 // Si ninguna ruta coincide, devuelve index.html.
-// Esto permite que frameworks como React Router manejen las rutas en el frontend.
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
