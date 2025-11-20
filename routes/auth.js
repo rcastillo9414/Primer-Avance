@@ -27,7 +27,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login
+// Login para usuarios existentes 
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;

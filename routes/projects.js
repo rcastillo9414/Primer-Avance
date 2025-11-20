@@ -1,6 +1,6 @@
 const express = require('express'); // Ayuda a crear rutas y servidores
 const router = express.Router(); // Nos ayuda a definir las rutas especificas 
-const Project = require('../models/project'); // Datos para proyectos en la base de datos
+const Project = require('../models/Project.'); // Datos para proyectos en la base de datos
 const auth = require('..')                    // Middleware para verificacion y autorizacion
 
 // Ruta para generar los proyectos 
