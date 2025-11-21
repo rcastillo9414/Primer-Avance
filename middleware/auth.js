@@ -27,4 +27,4 @@ module.exports = async (req, res, next) => {
         console.error('Error de verificacion:', err.message);
         res.status(401).json({ msg: 'Acceso restringido, revise sus credenciales'});
     }
-}
+};
