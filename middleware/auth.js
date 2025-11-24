@@ -1,6 +1,7 @@
 // Trae la libreria que ayuda a crear y verificar los token de seguridad 
 const jwt = require('jsonwebtoken'); 
 
+
 // Revisa el modelo de usuario para buscar informacion en la base de datos 
 const User = require('../models/User');
 

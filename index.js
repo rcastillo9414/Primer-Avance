@@ -25,8 +25,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Registro de rutas de la API.
 // Todo lo que esté dentro de routes/auth.js responderá bajo la ruta /api/auth
-// Ejemplo: /api/auth/login, /api/auth/register
 app.use('/api/auth', require('./routes/auth'));
+
+app.use('/api/projects', require('./routes/projects'));
 
 // Fallback para aplicaciones tipo Single Page Application (SPA).
 // Si ninguna ruta coincide, devuelve index.html.
