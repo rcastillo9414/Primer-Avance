@@ -29,6 +29,13 @@ app.use('/api/auth', require('./routes/auth'));
 
 app.use('/api/projects', require('./routes/projects'));
 
+app.use('/api/holidays', require('./routes/holidays'));
+
+app.use('/api/vacations', require('./routes/vacations'));
+
+app.use('/api/reports', require('./routes/reports'));
+
+
 // Fallback para aplicaciones tipo Single Page Application (SPA).
 // Si ninguna ruta coincide, devuelve index.html.
 app.get('*', (req, res) => {
