@@ -22,14 +22,14 @@ exports.hoursPerProject = async (req, res) => {
       { $match: match }, // Aplicamos los filtros
       { $group: { _id: '$project', totalHours: { $sum: '$totalHours' } } }, // Sumamos horas por proyecto
       { $lookup: { from: 'projects', localField: '_id', foreignField: '_id', as: 'project' } }, // Buscamos detalles del proyecto
-      { $unwind: { path: '$project', preserveNullAndEmptyArrays: true } }, // Desenrollamos el resultado para facilitar la lectura
-      { $project: { project: '$project.name', projectCode: '$project.code', totalHours: 1 } } // Mostramos solo los datos necesarios
+      { $unwind: { path: '$project', preserveNullAndEmptyArrays: true } }, // Desgloza la informacion para mejor lectura 
+      { $project: { project: '$project.name', projectCode: '$project.code', totalHours: 1 } } // Muestra solo  datos necesarios
     ]);
 
     // Envia los resultados
     res.json(agg);
   } catch (err) {
-    // Si hay error, lo mostramos en la consola y enviamos un mensaje
+    // Si hay error, muestra el siguiente mensaje
     console.error('hoursPerProject', err);
     res.status(500).json({ msg: err.message });
   }

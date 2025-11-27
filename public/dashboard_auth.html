@@ -1,7 +1,107 @@
 <!doctype html>
-<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>ATH Dashboard</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<html>
+<head>
+  <!-- Configuración de la codificación y vista adaptable en dispositivos -->
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  
+  <!-- Título de la página -->
+  <title>ATH Dashboard - Rikimaka</title>
+  
+  <!-- Incluimos Bootstrap para estilos y diseño responsive -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
 <body class="p-4">
-<h1>Dashboard - Administrador Talento Humano</h1>
-<p>Página de ejemplo para el ATH. Aquí se integrarán reportes y aprobaciones.</p>
-</body></html>
+  <!-- Contenedor principal para centrar y dar márgenes -->
+  <div class="container">
+    <!-- Título principal del dashboard -->
+    <h1>Dashboard - Administrador Talento Humano</h1>
+    <!-- Descripción breve -->
+    <p class="text-muted">Vistas rápidas de métricas. (Requiere login y token en localStorage)</p>
+
+    <!-- Fila que contiene varias columnas (tarjetas) -->
+    <div class="row gy-3">
+      
+      <!-- Primera tarjeta: Horas por Proyecto -->
+      <div class="col-md-6">
+        <div class="card p-3">
+          <h5>Horas por Proyecto</h5>
+          <!-- Botón para cargar datos -->
+          <button id="btnHours" class="btn btn-sm btn-primary mb-2">Cargar</button>
+          <!-- Área para mostrar resultados con scroll si hay mucho texto -->
+          <pre id="outHours" style="max-height:300px;overflow:auto"></pre>
+        </div>
+      </div>
+
+      <!-- Segunda tarjeta: Eficiencia por Proyecto -->
+      <div class="col-md-6">
+        <div class="card p-3">
+          <h5>Eficiencia por Proyecto (presupuesto por hora)</h5>
+          <button id="btnEff" class="btn btn-sm btn-primary mb-2">Cargar</button>
+          <pre id="outEff" style="max-height:300px;overflow:auto"></pre>
+        </div>
+      </div>
+
+      <!-- Tercera tarjeta: Productividad por Usuario -->
+      <div class="col-md-6">
+        <div class="card p-3">
+          <h5>Productividad por Usuario</h5>
+          <button id="btnProd" class="btn btn-sm btn-primary mb-2">Cargar</button>
+          <pre id="outProd" style="max-height:300px;overflow:auto"></pre>
+        </div>
+      </div>
+
+      <!-- Cuarta tarjeta: Utilización por Proyecto -->
+      <div class="col-md-6">
+        <div class="card p-3">
+          <h5>Utilización por Proyecto</h5>
+          <button id="btnUtil" class="btn btn-sm btn-primary mb-2">Cargar</button>
+          <pre id="outUtil" style="max-height:300px;overflow:auto"></pre>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Script JavaScript para manejar los botones y llamadas a API -->
+  <script>
+    // Función asíncrona para hacer fetch con autorización (token en localStorage)
+    async function fetchWithAuth(path) {
+      const token = localStorage.getItem('token'); // Obtener token del almacenamiento local
+      const headers = token ? { 'Authorization': 'Bearer ' + token } : {}; // Encabezados con token si existe
+      const res = await fetch(path, { headers }); // Realizar la petición
+      if (!res.ok) { // Si hay error en la respuesta
+        const j = await res.json().catch(()=>({msg:'error'})); // Intentar leer mensaje de error
+        alert('Error: ' + (j.msg || res.statusText)); // Mostrar alerta con error
+        throw new Error('Fetch error'); // Lanzar error para detener ejecución
+      }
+      return res.json(); // Retornar datos en formato JSON
+    }
+
+    // Evento para cargar horas por proyecto
+    document.getElementById('btnHours').addEventListener('click', async ()=> {
+      const data = await fetchWithAuth('/api/reports/hours-per-project'); // Llamar API
+      // Mostrar datos en el área correspondiente, formateados en JSON
+      document.getElementById('outHours').textContent = JSON.stringify(data, null, 2);
+    });
+
+    // Evento para cargar eficiencia por proyecto
+    document.getElementById('btnEff').addEventListener('click', async ()=> {
+      const data = await fetchWithAuth('/api/reports/efficiency-per-project'); // Llamar API
+      document.getElementById('outEff').textContent = JSON.stringify(data, null, 2);
+    });
+
+    // Evento para cargar productividad por usuario
+    document.getElementById('btnProd').addEventListener('click', async ()=> {
+      const data = await fetchWithAuth('/api/reports/productivity-per-user'); // Llamar API
+      document.getElementById('outProd').textContent = JSON.stringify(data, null, 2);
+    });
+
+    // Evento para cargar utilización por proyecto
+    document.getElementById('btnUtil').addEventListener('click', async ()=> {
+      const data = await fetchWithAuth('/api/reports/utilization-per-project'); // Llamar API
+      document.getElementById('outUtil').textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>

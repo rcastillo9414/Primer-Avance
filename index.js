@@ -24,7 +24,6 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Registro de rutas de la API.
-// Todo lo que esté dentro de routes/auth.js responderá bajo la ruta /api/auth
 app.use('/api/auth', require('./routes/auth'));
 
 app.use('/api/projects', require('./routes/projects'));
@@ -35,6 +34,9 @@ app.use('/api/vacations', require('./routes/vacations'));
 
 app.use('/api/reports', require('./routes/reports'));
 
+app.use('/api/reports', require('./routes/reports_extended'));
+
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Fallback para aplicaciones tipo Single Page Application (SPA).
 // Si ninguna ruta coincide, devuelve index.html.
