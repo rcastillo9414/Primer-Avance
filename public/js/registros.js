@@ -65,6 +65,7 @@ async function deleteLog(id){
   else alert('Error, intentelo nuevamente');
 }
 
+
 // Cuando la página cargue
 document.addEventListener('DOMContentLoaded', ()=> {
   // Busca el formulario y le asigna la función al enviar
