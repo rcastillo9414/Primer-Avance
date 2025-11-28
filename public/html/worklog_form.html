@@ -1,7 +1,23 @@
-<!doctype html>
-<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Registrar Actividad</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reports - Rikimaka</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="/public/css/style.css" rel="stylesheet"></head>
 <body class="p-4">
-<h1>Registrar Actividad - Colaborador</h1>
-<p>Formulario de ejemplo para registrar actividad diaria (Módulo futuro).</p>
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1>Reportes</h1>
+      <a class="btn btn-secondary" href="/public/html/dashboard.html">Atras</a>
+    </div>
+    <div class="card p-3 mb-3">
+      <h5>Horas por proyecto</h5>
+      <button id="btnLoadHours" class="btn btn-sm btn-primary">Cargar</button>
+      <pre id="outHours"></pre>
+    </div>
+    <div class="card p-3">
+      <h5>Productividad por usuario</h5>
+      <button id="btnLoadProd" class="btn btn-sm btn-primary">Cargar</button>
+      <pre id="outProd"></pre>
+    </div>
+  </div>
+<script src="../js/reportes.js"></script><script src="../js/auth.js"></script>
 </body></html>
