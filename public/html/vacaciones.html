@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vacaciones - Rikimaka</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="/public/css/style.css" rel="stylesheet"></head>
+<body class="p-4">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1>Vacaciones</h1>
+      <a class="btn btn-secondary" href="/public/html/dashboard.html">Atras</a>
+    </div>
+    <div class="card p-3 mb-3">
+      <h5>Solicitar vacaciones</h5>
+      <form id="vacationForm">
+        <div class="mb-2"><label>Fecha inicio vacaciones</label><input type="date" name="startDate" class="form-control" required></div>
+        <div class="mb-2"><label>Fecha final de vacaciones</label><input type="date" name="endDate" class="form-control" required></div>
+        <div class="mb-2"><label>Razón si no aplica, puede poner N/A</label><input name="reason" class="form-control"></div>
+        <button class="btn btn-primary">Enviar solicitud</button>
+      </form>
+    </div>
+    <div class="card p-3">
+      <h5>Mis solicitudes</h5>
+      <pre id="myVacations" style="white-space:pre-wrap"></pre>
+    </div>
+  </div>
+<script src="../js/vacaciones.js"></script><script src="../js/auth.js"></script>
+</body></html>
