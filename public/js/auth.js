@@ -13,7 +13,7 @@ async function api(path, options = {}) {
   // Si la respuesta es 401 (no autorizado), muestra alerta y redirige a login
   if (res.status === 401) {
     alert('Acceso restringido, revise sus credenciales');
-    window.location = '/public/html/login.html'; // revisar cuando se termine y ajustar la ubicacion
+    window.location = ''; // revisar cuando se termine y ajustar la ubicacion
     throw new Error('Acceso restringido'); // Detiene la ejecución si no está autorizado
   }
   // Devuelve la respuesta para que pueda ser procesada después
@@ -38,7 +38,7 @@ async function handleLogin(e) {
     localStorage.setItem('token', json.token);
     localStorage.setItem('userName', json.user?.name || '');
     // Redirige a la página del dashboard
-    window.location = '/public/html/dashboard.html'; // revisar cuando se termine y ajustar la ubicacion
+    window.location = ''; // revisar cuando se termine y ajustar la ubicacion
   } else {
     // Si hubo error, muestra un mensaje
     alert(json.error || json.msg || 'Login failed');

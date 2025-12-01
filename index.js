@@ -17,24 +17,22 @@ connectDB();
 app.use(cors());
 
 // Middleware que permite a Express interpretar JSON en las peticiones.
-// Necesario para manejar POST, PUT, PATCH con cuerpos en formato JSON.
 app.use(express.json());
 
 // Esto permite a Express entregar HTML, CSS, JS e imágenes sin definir rutas manuales.
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Registro de rutas de la API.
 app.use('/api/auth', require('./routes/auth'));
 
 app.use('/api/projects', require('./routes/projects'));
 
-app.use('/api/holidays', require('./routes/holidays'));
+app.use('/api/holidays', require('./routes/feriados'));
 
-app.use('/api/vacations', require('./routes/vacations'));
+app.use('/api/vacations', require('./routes/vacaciones'));
 
-app.use('/api/reports', require('./routes/reports'));
-
-app.use('/api/reports', require('./routes/reports_extended'));
+app.use('/api/reports', require('./routes/worklogs'));
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
@@ -44,8 +42,8 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Obtiene el puerto desde variables de entorno o usa 3000 por defecto.
-const PORT = process.env.PORT || 3000;
+// Obtiene el puerto desde variables de entorno 
+const PORT = process.env.PORT || 5501;
 
 // Inicia el servidor y muestra un mensaje en consola indicando el puerto activo.
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
