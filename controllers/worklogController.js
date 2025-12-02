@@ -1,119 +1,86 @@
+// Entrega-Final/controllers/worklogController.js
 const Worklog = require("../models/Worklog");
 const Project = require("../models/Project");
 
-// Verifica si un proyecto existe
-async function ensureProjectExist(id) {
-  const exists = await Project.findById(id);
-  if (!exists) throw new Error("Proyecto no encontrado");
-}
-
-// Crear Worklog
-exports.createWorklog = async (req, res) => {
-  try {
-    const userId = req.user.id;  // ID correcto del usuario
-    const { project, date, activities, notes } = req.body;
-
-    if (!project || !date)
-      return res.status(400).json({ msg: "Proyecto y fecha son necesarios" });
-
-    await ensureProjectExist(project);
-
-    const log = new Worklog({
-      user: userId,
-      project,
-      date,
-      activities,
-      notes
-    });
-
-    await log.save();
-    res.status(201).json(log);
-
-  } catch (err) {
-    res.status(400).json({ msg: err.message });
-  }
-};
-
-// Obtener worklogs del usuario autenticado
-exports.getMyWorklogs = async (req, res) => {
+exports.getMine = async (req, res) => {
   try {
     const logs = await Worklog.find({ user: req.user.id })
       .populate("project", "name")
-      .sort({ date: -1 });
+      .lean();
 
     res.json(logs);
+
   } catch (err) {
+    console.error("Error getMine:", err);
+    res.status(500).json({ msg: "Error obteniendo tus registros" });
+  }
+};
+
+exports.create = async (req, res) => {
+  try {
+    const { project, date, activities, notes } = req.body;
+
+    if (!project || !date || !activities || activities.length === 0) {
+      return res.status(400).json({ msg: "Campos incompletos" });
+    }
+
+    // Validar proyecto
+    const projectExists = await Project.findById(project);
+    if (!projectExists) {
+      return res.status(404).json({ msg: "Proyecto no encontrado" });
+    }
+
+    // Normalizar actividades
+    const normalizedActivities = activities.map(a => {
+      let st = (a.status || "").toLowerCase();
+
+      // Normalización
+      if (["completado", "finalizado", "completo", "hecho"].includes(st)) {
+        st = "completado";
+      } else if (["en proceso", "en_proceso", "proceso"].includes(st)) {
+        st = "en_proceso";
+      } else if (["bloqueado", "detenido"].includes(st)) {
+        st = "bloqueado";
+      } else {
+        st = "en_proceso"; // valor por defecto seguro
+      }
+
+      return {
+        description: a.description,
+        hours: Number(a.hours),
+        status: st
+      };
+    });
+
+    const wl = await Worklog.create({
+      user: req.user.id,
+      project,
+      date,
+      activities: normalizedActivities,
+      notes
+    });
+
+    res.status(201).json(wl);
+
+  } catch (err) {
+    console.error("Error create Worklog:", err);
     res.status(500).json({ msg: err.message });
   }
 };
 
-// Obtener Worklog por ID
-exports.getWorklogById = async (req, res) => {
+exports.remove = async (req, res) => {
   try {
-    const log = await Worklog.findById(req.params.id)
-      .populate("user", "name email")
-      .populate("project", "name");
+    const wl = await Worklog.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user.id
+    });
 
-    if (!log)
-      return res.status(404).json({ msg: "No se encontró el registro" });
+    if (!wl) return res.status(404).json({ msg: "Registro no encontrado" });
 
-    const isOwner = String(log.user._id) === req.user.id;
-    const isAdmin = req.user.role === "ATH" || req.user.role === "IT";
-
-    if (!isOwner && !isAdmin)
-      return res.status(403).json({ msg: "Acceso no autorizado" });
-
-    res.json(log);
+    res.json({ msg: "Worklog eliminado" });
 
   } catch (err) {
-    res.status(500).json({ msg: err.message });
-  }
-};
-
-// Actualizar Worklog
-exports.updateWorklog = async (req, res) => {
-  try {
-    const log = await Worklog.findById(req.params.id);
-    if (!log)
-      return res.status(404).json({ msg: "No se encontró registro" });
-
-    const isOwner = String(log.user) === req.user.id;
-    const isAdmin = req.user.role === "ATH" || req.user.role === "IT";
-
-    if (!isOwner && !isAdmin)
-      return res.status(403).json({ msg: "Acceso no autorizado" });
-
-    const { activities, notes, date } = req.body;
-
-    if (activities) log.activities = activities;
-    if (notes) log.notes = notes;
-    if (date) log.date = date;
-
-    await log.save();
-    res.json(log);
-
-  } catch (err) {
-    res.status(500).json({ msg: err.message });
-  }
-};
-
-// Eliminar Worklog
-exports.deleteWorklog = async (req, res) => {
-  try {
-    const log = await Worklog.findById(req.params.id);
-    if (!log)
-      return res.status(404).json({ msg: "No se encontró el registro" });
-
-    const isOwner = String(log.user) === req.user.id;
-    const isAdmin = req.user.role === "ATH" || req.user.role === "IT";
-
-    if (!isOwner && !isAdmin)
-      return res.status(403).json({ msg: "Acceso no autorizado" });
-
-    await log.deleteOne();
-    res.json({ msg: "Registro eliminado" });
-
-  } catch (err) {
-    res.status(500).json({ msg: err.message });
+    console.error("Error remove:", err);
+    res.status(500).json({ msg: "Error eliminando registro" });
   }
 };

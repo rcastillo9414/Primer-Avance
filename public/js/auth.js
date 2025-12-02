@@ -1,55 +1,65 @@
-// Función para hacer llamadas a la API
+// --- UTILIDAD: PETICIÓN A API CON TOKEN ---
 async function api(path, options = {}) {
-  // Si no hay encabezados en options, los crea vacíos
   options.headers = options.headers || {};
-  // Define que el contenido será en formato JSON
   options.headers['Content-Type'] = 'application/json';
-  // Si hay un token guardado en localStorage, lo añade en el encabezado de autorización
-  if (localStorage.token) {
-    options.headers['Authorization'] = 'Bearer ' + localStorage.token;
+
+  const token = localStorage.getItem('token');
+  if (token) {
+    options.headers['Authorization'] = 'Bearer ' + token;
   }
-  // Hace la petición fetch a la API con la ruta y las opciones
+
   const res = await fetch(path, options);
-  // Si la respuesta es 401 (no autorizado), muestra alerta y redirige a login
+
   if (res.status === 401) {
-    alert('Acceso restringido, revise sus credenciales');
-    window.location = ''; // revisar cuando se termine y ajustar la ubicacion
-    throw new Error('Acceso restringido'); // Detiene la ejecución si no está autorizado
+    alert('Acceso restringido. Inicie sesión nuevamente.');
+    logout();
   }
-  // Devuelve la respuesta para que pueda ser procesada después
+
   return res;
 }
 
-// Función para manejar el login
+// --- LOGIN ---
 async function handleLogin(e) {
-  e.preventDefault(); // Previene que el formulario se envíe de forma tradicional
-  const form = e.target; // Obtiene el formulario que disparó el evento
-  // Crea un objeto con email y password desde los campos del formulario
-  const body = { 
-    email: form.email.value, 
-    password: form.password.value 
+  e.preventDefault();
+  const f = e.target;
+
+  const body = {
+    email: f.email.value,
+    password: f.password.value
   };
-  // Hace la llamada a la API de login 
-  const res = await api('/api/auth/login', { method: 'POST', body: JSON.stringify(body) });
-  const json = await res.json(); // Convierte la respuesta en JSON
-  // Si la respuesta fue exitosa y contiene un token
+
+  const res = await api('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(body)
+  });
+
+  let json;
+  try {
+    json = await res.json();
+  } catch {
+    json = {};
+  }
+
   if (res.ok && json.token) {
-    // Guarda el token y el nombre de usuario en localStorage
     localStorage.setItem('token', json.token);
-    localStorage.setItem('userName', json.user?.name || '');
-    // Redirige a la página del dashboard
-    window.location = ''; // revisar cuando se termine y ajustar la ubicacion
+    localStorage.setItem('user', JSON.stringify(json.user));
+    window.location = "dashboard_auth.html";
   } else {
-    // Si hubo error, muestra un mensaje
-    alert(json.error || json.msg || 'Login failed');
+    alert(json.msg || json.error || 'Error en las credenciales');
   }
 }
 
-// Función para cerrar sesión
+// --- LOGOUT ---
 function logout() {
-  // Elimina el token y el nombre de usuario del localStorage
   localStorage.removeItem('token');
-  localStorage.removeItem('userName');
-  // Redirige a la página de login
-  window.location = '../public/index.html';  // revisar cuando se termine y ajustar la ubicacion
+  localStorage.removeItem('user');
+  window.location = "index.html";
 }
+
+// --- INICIALIZAR EN PÁGINAS QUE TENGAN loginForm ---
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('loginForm');
+  if (form) {
+    form.addEventListener('submit', handleLogin);
+  }
+});

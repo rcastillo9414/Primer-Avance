@@ -1,24 +1,14 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const auth = require("../middleware/auth");
+const role = require("../middleware/role");
+const ctrl = require("../controllers/vacacionesController");
 
-// IMPORTACIÓN  DEL MIDDLEWARE
-const authMiddleware = require('../../Entrega-Final/middleware/auth');
+router.post("/", auth, ctrl.create);
+router.get("/", auth, ctrl.list);
 
-// IMPORTACIÓN  DEL CONTROLLER
-const vacacionesController = require('../controllers/vacacionesController');
-
-// ===== RUTAS  ASIGNADAS =====
-
-// Crear solicitud
-router.post('/', authMiddleware, vacacionesController.createRequest);
-
-// Ver solicitudes del usuario
-router.get('/me', authMiddleware, vacacionesController.getMyRequest);
-
-// Ver solicitudes pendientes (solo admin/ATH)
-router.get('/pending', authMiddleware, vacacionesController.getPending);
-
-// Revisar (aprobar/rechazar) una solicitud
-router.put('/:id/review', authMiddleware, vacacionesController.reviewRequest);
+router.get("/pending", auth, role("Administrativo", "ATH"), ctrl.listPending);
+router.patch("/:id/approve", auth, role("Administrativo", "ATH"), ctrl.approve);
+router.patch("/:id/reject", auth, role("Administrativo", "ATH"), ctrl.reject);
 
 module.exports = router;

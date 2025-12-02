@@ -1,31 +1,38 @@
-// Trae la libreria que ayuda a crear y verificar los token de seguridad 
-const jwt = require('jsonwebtoken'); 
-
-
-// Revisa el modelo de usuario para buscar informacion en la base de datos 
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Se utiliza para la verificacion si un usuario tiene permiso para ingresar 
+// Middleware de autenticación
 module.exports = async (req, res, next) => {
-    //Revisa el token para aprobacion 
-    const token = req.header('Autorizacion')?.replace('Bearer', '') || req.query.token; 
-    // Si no hay token, rechaza la solicitud y muestra el mensaje
-    if (!token) return res.status(401).json({ msg: 'Acceso Restringido, revise sus credenciales'});
+  try {
+    // Obtener token desde header o query
+    const token =
+      req.header('Authorization')?.replace('Bearer ', '') ||
+      req.query.token;
 
-    try { 
-        // Verificacion del token usando clave secreta
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'devsecret');
-        // Guarda la informacion del usuario que viene en el token 
-        req.user = decoded; 
+    if (!token) 
+      return res.status(401).json({ msg: 'Acceso restringido: falta token' });
 
-        // Revisa la base de datos por mas detalles (sin contraseña)
-        req.userDetails = await User.findById(decoded.id).select('-password');
-        
-        // Continua con el siguiente proceso
-        next();
-    } catch (err) { 
-        // Si el token no se verifica, muestra el siguiente mensaje 
-        console.error('Error de verificacion:', err.message);
-        res.status(401).json({ msg: 'Acceso restringido, revise sus credenciales'});
-    }
+    // Verificar token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'devsecret');
+
+    // Buscar usuario real
+    const user = await User.findById(decoded.id).select('-password');
+
+    if (!user)
+      return res.status(401).json({ msg: 'Usuario no encontrado o eliminado' });
+
+    // Guardar datos en req
+    req.user = {
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      role: user.role
+    };
+
+    next();
+
+  } catch (err) {
+    console.error('Auth error:', err.message);
+    res.status(401).json({ msg: 'Token inválido o expirado' });
+  }
 };

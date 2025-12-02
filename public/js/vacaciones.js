@@ -1,66 +1,112 @@
-// Función que se ejecuta cuando el usuario envía el formulario de vacaciones
-async function submitVacation(e){
-  e.preventDefault(); // Evita que la página se recargue al enviar el formulario
+document.addEventListener("DOMContentLoaded", () => {
+  const startInput = document.getElementById("startDate");
+  const endInput = document.getElementById("endDate");
+  const totalInput = document.getElementById("totalDays");
+  const form = document.getElementById("vacationForm");
 
-  const f = e.target; // Obtiene el formulario que se envió
-  
-  // Crea un objeto con los datos del formulario: fechas y motivo
-  const body = { 
-    startDate: f.startDate.value, // Fecha de inicio de vacaciones
-    endDate: f.endDate.value,     // Fecha de fin de vacaciones
-    reason: f.reason.value        // Motivo de la solicitud
-  };
+  // Calcular días automáticamente cuando cambian fechas
+  function calculateDays() {
+    const start = new Date(startInput.value);
+    const end = new Date(endInput.value);
 
-  // Envía los datos al servidor usando fetch con método POST
-  const res = await fetch('/api/vacations', {
-    method:'POST', // Método para enviar datos nuevos
-    headers:{
-      'Content-Type':'application/json', // Indica que enviamos JSON
-      'Authorization':'Bearer ' + localStorage.token // Token para verificar quién es el usuario
-    },
-    body: JSON.stringify(body) // Convierte los datos a formato JSON para enviar
-  });
+    if (!startInput.value || !endInput.value) {
+      totalInput.value = "";
+      return;
+    }
 
-  // Si la respuesta del servidor es exitosa (código 200-299)
-  if (res.ok) { 
-    f.reset(); // Limpia el formulario
-    alert('Solicitud enviada'); // Muestra mensaje de éxito
-  } else {
-    const j = await res.json(); // Si hay error, obtiene el mensaje del servidor
-    alert(j.msg || 'Error'); // Muestra el mensaje de error
-  }
-}
+    if (end < start) {
+      totalInput.value = "";
+      alert("La fecha final no puede ser menor que la inicial.");
+      endInput.value = "";
+      return;
+    }
 
-// Función para cargar y mostrar mis vacaciones actuales
-async function loadMyVacations() {
-  // Hace una petición para obtener las vacaciones del usuario
-  const res = await fetch('/api/vacations/me', {
-    headers:{ 'Authorization':'Bearer ' + localStorage.token } // Usa el token para autenticarse
-  });
+    // Calcula días incluyendo el inicio
+    const diff = (end - start) / (1000 * 60 * 60 * 24) + 1;
 
-  // Si la respuesta no es exitosa
-  if (!res.ok) {
-    alert('Error'); // Muestra un error
-    return; // Sale de la función
+    if (diff < 1) {
+      totalInput.value = "";
+      alert("El período debe ser al menos de 1 día.");
+      return;
+    }
+
+    totalInput.value = diff;
   }
 
-  // Obtiene la lista de vacaciones en formato JSON
-  const list = await res.json();
+  startInput.addEventListener("change", calculateDays);
+  endInput.addEventListener("change", calculateDays);
 
-  // Busca en la página el elemento donde mostrar las vacaciones
-  const out = document.getElementById('myVacations');
+  // Enviar solicitud
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  // Muestra la lista en formato de texto (JSON bonito)
-  out.innerHTML = JSON.stringify(list, null, 2);
-}
+    const token = localStorage.getItem("token");
 
-// Cuando la página termina de cargar
-document.addEventListener('DOMContentLoaded', ()=> {
-  const f = document.getElementById('vacationForm'); // Busca el formulario
-  
-  // Si existe el formulario, le pone la función al enviar
-  if (f) f.addEventListener('submit', submitVacation);
-  
-  // Si existe el elemento para mostrar vacaciones, carga las vacaciones al inicio
-  if (document.getElementById('myVacations')) loadMyVacations();
+    const body = {
+      startDate: startInput.value,
+      endDate: endInput.value,
+      totalDays: Number(totalInput.value)
+    };
+
+    if (!body.totalDays || body.totalDays <= 0) {
+      alert("Debe seleccionar fechas válidas.");
+      return;
+    }
+
+    const res = await fetch("/api/vacations", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.msg || "Error al enviar solicitud");
+      return;
+    }
+
+    alert("Solicitud enviada correctamente");
+    form.reset();
+    totalInput.value = "";
+    loadMyVacations();
+  });
+
+  // Cargar solicitudes del usuario
+  async function loadMyVacations() {
+    const token = localStorage.getItem("token");
+    const tbody = document.getElementById("myVacationsTable");
+
+    const res = await fetch("/api/vacations", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+
+    const data = await res.json();
+
+    tbody.innerHTML = "";
+
+    if (data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center">No hay solicitudes registradas</td></tr>`;
+      return;
+    }
+
+    data.forEach(v => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${v.startDate.substring(0,10)}</td>
+        <td>${v.endDate.substring(0,10)}</td>
+        <td>${v.totalDays}</td>
+        <td>${v.status}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Cargar solicitudes al abrir la página
+  loadMyVacations();
 });

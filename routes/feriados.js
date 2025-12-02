@@ -1,21 +1,26 @@
 // Carga la libreria de express para crear rutas 
 const express = require('express');
-const router = express.Router(); // Nos ayuda a definir las rutas 
+const router = express.Router();
 
-// carga middleware para verificar los roles 
+// middleware de autenticación
+const auth = require('../middleware/auth');
 
-const auth = require('../middleware/auth'); 
-const role = require('../middleware/role'); 
+// middleware que acepta múltiples roles
+const roleAny = require('../middleware/roleAny');
 
-// carga el control que maneja las funciones con solicitudes de vacaciones
-const ctrl = require('../controllers/feriadoscontroller'); 
+// controlador de feriados
+const ctrl = require('../controllers/feriadoscontroller');
 
-// Rutas para creacion de dias feriados 
+// Crear feriado (solo ATH y Administrativo)
+router.post('/', auth, roleAny('ATH', 'Administrativo'), ctrl.createHoliday);
 
-router.post('/', auth, role('Administrativo'), ctrl.createHoliday);
+// Listar feriados (todos los roles autenticados)
 router.get('/', auth, ctrl.getHolidays);
-router.put('/:id', auth, role('Administrativo'),ctrl.updateHoliday);
-router.delete('/:id', auth, role('Administrativo'), ctrl.deleteHoliday);
 
-// Exporta las rutas para que pueda usarse en otras partes 
-module.exports = router; 
+// Actualizar feriado (solo ATH y Administrativo)
+router.put('/:id', auth, roleAny('ATH', 'Administrativo'), ctrl.updateHoliday);
+
+// Eliminar feriado (solo ATH y Administrativo)
+router.delete('/:id', auth, roleAny('ATH', 'Administrativo'), ctrl.deleteHoliday);
+
+module.exports = router;

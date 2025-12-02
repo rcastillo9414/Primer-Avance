@@ -1,15 +1,18 @@
 const mongoose = require('mongoose');
 
-const ProjectSchema = new mongoose.Schema({ // define un esquema para projectos 
-    name: {type: String, required: true}, // Nombre del projecto
-    code: {type: String, required: true, unique: true }, // Codigo unico del projecto 
-    description: {type: String }, //Descripcion del projecto 
-    budget: { type: Number, default: 0 }, //presupuesto asignado al projecto 
-    resources: { type: Number, default: 0}, // recursos asignados al projecto 
-    members: [{type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Miembros trabajando en el projecto 
-    status: { type: String, enum: ['ACTIVO','INACTIVO','COMPLETADO'], default: 'ACTIVO' },
-    CreatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },  //Usuario que creo el projecto 
-    CreatedAt: { type: Date, default: Date.now } // Fecha en la que fue creado el projecto 
-});
+const ProjectSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  code: { type: String, required: true, unique: true },
+  description: String,
+  budget: { type: Number, default: 0 },
+  resources: { type: Number, default: 0 },
+  members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  status: { 
+    type: String, 
+    enum: ['ACTIVO', 'INACTIVO', 'COMPLETADO'], 
+    default: 'ACTIVO' 
+  },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+}, { timestamps: true });
 
-module.exports = mongoose.model('Project', ProjectSchema) // Exporta el modelo de proyecto basado en el modelo definido 
+module.exports = mongoose.model('Project', ProjectSchema);

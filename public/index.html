@@ -1,67 +1,78 @@
 <!doctype html>
-<html>
+<html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rikimaka HR - Inicio</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Rikimaka HR - Inicio de Sesión</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #f2f2f2;
+    }
+    .login-card {
+      max-width: 420px;
+      margin: 80px auto;
+    }
+  </style>
 </head>
-<body class="bg-light">
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-      <a class="navbar-brand" href="/">Rikimaka HR</a>
-    </div>
-  </nav>
 
-  <main class="container py-5">
-    <div class="row">
-      <div class="col-md-6 offset-md-3">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h3 class="card-title mb-3">Login</h3>
-            <form id="loginForm">
-              <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input class="form-control" name="email" type="email" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Contraseña</label>
-                <input class="form-control" name="password" type="password" required>
-              </div>
-              <button class="btn btn-primary w-100" type="submit">Ingresar</button>
-            </form>
-            <hr>
-            <p class="small text-muted">Para ingresar, ingrese su nombre de usuario y contraseña.</p>
-          </div>
+<body>
+
+  <div class="login-card card shadow">
+    <div class="card-body">
+
+      <h3 class="text-center mb-4">Rikimaka HR</h3>
+
+      <form id="loginForm">
+        <div class="mb-3">
+          <label class="form-label" for="email">Correo</label>
+          <input 
+            type="email" 
+            id="email"
+            name="email" 
+            class="form-control" 
+            autocomplete="email"
+            required
+          >
         </div>
-      </div>
-    </div>
-  </main>
 
-    <script>
-    const form = document.getElementById('loginForm');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const data = Object.fromEntries(new FormData(form));
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      const json = await res.json();
-      if (res.ok) {
-        localStorage.setItem('token', json.token);
-        localStorage.setItem('user', JSON.stringify(json.user));
-        alert('Ingreso exitoso: ' + json.user.name + ' (' + json.user.role + ')');
-        
-        // redirecciona por role)
-        if (json.user.role === 'ATH') window.location = '/public/dashboard_ath.html';
-        else if (json.user.role === 'IT') window.location = '/public/projects_panel.html';
-        else window.location = '/public/worklog_form.html';
+        <div class="mb-3">
+          <label class="form-label" for="password">Contraseña</label>
+          <input 
+            type="password" 
+            id="password"
+            name="password" 
+            class="form-control" 
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <button class="btn btn-primary w-100" type="submit">Ingresar</button>
+      </form>
+
+      <p class="text-muted text-center mt-3" style="font-size: 0.85rem;">
+        Ingrese sus credenciales para acceder al sistema.
+      </p>
+    </div>
+  </div>
+
+  <!-- Script de login -->
+  <script src="/js/auth.js"></script>
+  <script>
+    // Conectar el formulario con handleLogin
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('loginForm');
+      if (form && typeof handleLogin === 'function') {
+        form.addEventListener('submit', handleLogin);
       } else {
-        alert(json.msg || 'Error en login');
+        console.error('No se encontró loginForm o handleLogin');
       }
     });
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
