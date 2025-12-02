@@ -7,7 +7,8 @@ const ProjectSchema = new mongoose.Schema({ // define un esquema para projectos
     budget: { type: Number, default: 0 }, //presupuesto asignado al projecto 
     resources: { type: Number, default: 0}, // recursos asignados al projecto 
     members: [{type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Miembros trabajando en el projecto 
-    CreatedBy: { type: moongoose.Schema.Types.ObjectId, ref: 'User' },  //Usuario que creo el projecto 
+    status: { type: String, enum: ['ACTIVO','INACTIVO','COMPLETADO'], default: 'ACTIVO' },
+    CreatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },  //Usuario que creo el projecto 
     CreatedAt: { type: Date, default: Date.now } // Fecha en la que fue creado el projecto 
 });
 

@@ -1,105 +1,119 @@
-// Importa los modelos de datos para trabajar con las tareas y los proyectos
 const Worklog = require("../models/Worklog");
-const Project = require("../models/Project"); 
-const { json } = require("express");
+const Project = require("../models/Project");
 
-// Función para comprobar si un proyecto existe en la base de datos
-async function ensureProjectExist(id) { 
-    const exist = await Project.findById(id); 
-    if (!exist) throw new Error("Proyecto no encontrado"); 
+// Verifica si un proyecto existe
+async function ensureProjectExist(id) {
+  const exists = await Project.findById(id);
+  if (!exists) throw new Error("Proyecto no encontrado");
 }
 
-// Crear un registro de trabajo (Worklog)
-exports.createWorklog = async( req, res) => {
-    try { 
-        const userId = req.userId; // Codigo del usuario que hace la tarea
-        const { 
-            project, date, activities, notes } = req.body; // Informacion envidada en el registro 
+// Crear Worklog
+exports.createWorklog = async (req, res) => {
+  try {
+    const userId = req.user.id;  // ID correcto del usuario
+    const { project, date, activities, notes } = req.body;
 
-            // Confirma que se incluya el nombre del proyecto y la fecha 
-            if (!project || !date)
-                return res.status(400).json({ msg: "Proyecto y fecha son necesarios" });
+    if (!project || !date)
+      return res.status(400).json({ msg: "Proyecto y fecha son necesarios" });
 
-            // Confirma  que el proyecto existe 
-            await ensureProjectExist(project);
+    await ensureProjectExist(project);
 
-            // Crea un registro nuevo de trabajo 
+    const log = new Worklog({
+      user: userId,
+      project,
+      date,
+      activities,
+      notes
+    });
 
-        const log = new Worklog({ 
-            user: userId, 
-            project, 
-            date, 
-            activities, 
-            nores
-        });
+    await log.save();
+    res.status(201).json(log);
 
-        // Funcion para guardar la informacion en la base de datos 
-        await log.save(); 
-        res.status(201).json(log); // Confirma el registro creado 
-    } catch (err) { 
-        res.status(400).json ({ msg: err.message }); // Muestra errores si hay alguno 
-    }
-}; 
+  } catch (err) {
+    res.status(400).json({ msg: err.message });
+  }
+};
 
-// Obtiene los registros del usurario que inicia sesion 
+// Obtener worklogs del usuario autenticado
+exports.getMyWorklogs = async (req, res) => {
+  try {
+    const logs = await Worklog.find({ user: req.user.id })
+      .populate("project", "name")
+      .sort({ date: -1 });
+
+    res.json(logs);
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+// Obtener Worklog por ID
 exports.getWorklogById = async (req, res) => {
-    const log = await Worklog.find({ user: req.user.id })
-    .populate("project", "name")
-    .sort({ date: -1 }); // Ordena por fecha mas reciente 
+  try {
+    const log = await Worklog.findById(req.params.id)
+      .populate("user", "name email")
+      .populate("project", "name");
 
-   res.json(logs); // Envia los registros  
-}; 
+    if (!log)
+      return res.status(404).json({ msg: "No se encontró el registro" });
 
-// Obtiene un registro de trabajo por ID 
-exports.getWorklogById = async (req, res) => { 
-    const log = await Worklog.findById(req.params.id)    
-        .populate("user", "name email")
-        .populate("project", "name"); 
-    
-    if (!log) return res.status(404).json({ msg: "No se encontro el registro de trabajo"}); 
-    // verifica si el usuario que solicita el reporte, es dept IT o Administrativo 
-    const isOwnwer = String(log.user._id) === req.user.id; 
-    const isAdmin = req.user.role === "Administrativo";
+    const isOwner = String(log.user._id) === req.user.id;
+    const isAdmin = req.user.role === "ATH" || req.user.role === "IT";
 
-    if (!isOwner && !isAdmin) return res.status(403).json({ msg: "Prohibido, accesso no autorizado"}); 
-    
-    res.json(log); // envia el registro 
-}; 
+    if (!isOwner && !isAdmin)
+      return res.status(403).json({ msg: "Acceso no autorizado" });
 
-// Funcion para actualizar el registro de trabajo 
-exports.updateWorklog = async (req, res) => { 
-    const log = await Worklog.findById(req.params.id); //Busca registrp por id
-    if (!log) return res.status(404).json({ msg: "No se encontro registro"}); // Registro no se encontro 
+    res.json(log);
 
-    // Verifica si el usuario tiene permisos para actualizar reportes 
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+// Actualizar Worklog
+exports.updateWorklog = async (req, res) => {
+  try {
+    const log = await Worklog.findById(req.params.id);
+    if (!log)
+      return res.status(404).json({ msg: "No se encontró registro" });
+
     const isOwner = String(log.user) === req.user.id;
-    const isAdmin = req.user.role === "Administrativo";
+    const isAdmin = req.user.role === "ATH" || req.user.role === "IT";
 
-    if (!isOwner && !isAdmin) return res.status(403).json({ msg: "Prohibido, accesso no autorizado"}); 
+    if (!isOwner && !isAdmin)
+      return res.status(403).json({ msg: "Acceso no autorizado" });
 
-    // Obtiene los datos nuevos 
-    const { activities, notes, date } = req.body; 
+    const { activities, notes, date } = req.body;
 
-    // Actualiza solo si hay valores nuevos 
-    if (activities) log.activities = activities; 
-    if (notes) log.notes = notes; 
-    if (date) log.date = date; 
+    if (activities) log.activities = activities;
+    if (notes) log.notes = notes;
+    if (date) log.date = date;
 
-    await log.save(); // Guarda los cambios 
-    res.json(log); // Envia el registro actualizado 
-}; 
+    await log.save();
+    res.json(log);
 
-// Funcion para eliminar registros de trabajo 
-exports.deleteWorklog = async (req, res) => { 
-    const log = await Worklog.findById(req.params.id); // Busca registro por id 
-    if (!log) return res.status(404).json({ msg:"No se encontro el registro de trabajo"}); // Registro no encontrado 
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
 
-    // Verifica permisos de autorizacion 
-    const isOwner = String(log.user) === req.user.id; 
-    const isAdmin = req.user.role === "Administrativo"; 
+// Eliminar Worklog
+exports.deleteWorklog = async (req, res) => {
+  try {
+    const log = await Worklog.findById(req.params.id);
+    if (!log)
+      return res.status(404).json({ msg: "No se encontró el registro" });
 
-    if (!isOwner && !isAdmin) return res.status(403).json({ msg: "Prohibido, accesso no autorizado"}); 
+    const isOwner = String(log.user) === req.user.id;
+    const isAdmin = req.user.role === "ATH" || req.user.role === "IT";
+
+    if (!isOwner && !isAdmin)
+      return res.status(403).json({ msg: "Acceso no autorizado" });
 
     await log.deleteOne();
-    res.json({ msg: "Registro de trabajo borrado"}); //
+    res.json({ msg: "Registro eliminado" });
+
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
 };

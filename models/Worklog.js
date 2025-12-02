@@ -1,55 +1,63 @@
-const mongoose = require("moongose"); // Importa para trabajar con MongoDB
+const mongoose = require("mongoose"); // Importa Mongoose correctamente
 
-// Define como se creara la actividad, agregando descripcion, numero de horas, y registro de proceso
-const ActivitySchema = new mongoose.Schema({ 
-    description: { 
-        type: String, 
-        require: true
+// Define el esquema de actividades
+const ActivitySchema = new mongoose.Schema(
+  {
+    description: {
+      type: String,
+      required: true
     },
-    hours: { 
-        type: Number, 
-        required: true,
-        min: 0
-    }, 
-    status: { 
-        type: String, 
-        enum: [ "COMPLETADO", "EN_PROCESO", "BLOQUEADO"],
-        default: "EN_PROCESO"
-    }
-}, {_id: false }); 
-
-// Define el registro de trabajo ( worklog )
-
-const WorklogSchema = new mongoose.Schema ({ 
-    user: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User",
-        required: true
-    }, 
-    project: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "Project",
-        required: true
+    hours: {
+      type: Number,
+      required: true,
+      min: 0
     },
-    date: { 
-        type: Date,
-        required: true
-    }, 
-    activities: { 
-        type: [ActivitySchema],
-        default: [ ]
-    }, 
-    notes: { 
-        type: String 
+    status: {
+      type: String,
+      enum: ["COMPLETADO", "EN_PROCESO", "BLOQUEADO"],
+      default: "EN_PROCESO"
     }
-}, { timestamps: true }); // Añade de manera automatica la fecha cuando es creado o modificado
+  },
+  { _id: false }
+);
 
-WorklogSchema.pre("save", function(next) { 
-    // Suma las horas de las actividades y las guarda en horas totales 
-    this.totalHours = this.activities.reduce((t, a) => + a.hours, o); 
-    next(); // Sigue con el paso de guardar
-}); 
+// Define el esquema principal Worklog
+const WorklogSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
+    project: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+      required: true
+    },
+    date: {
+      type: Date,
+      required: true
+    },
+    activities: {
+      type: [ActivitySchema],
+      default: []
+    },
+    notes: {
+      type: String
+    },
+    totalHours: {
+      type: Number,
+      default: 0
+    }
+  },
+  { timestamps: true }
+);
 
-// Permite exportar el modelo para usar en otros lugares  
-module.exports = mongoose.model("Worklog", WorklogSchema); 
+// Middleware para calcular total de horas
+WorklogSchema.pre("save", function (next) {
+  this.totalHours = this.activities.reduce((t, a) => t + a.hours, 0);
+  next();
+});
 
+// Exportar modelo
+module.exports = mongoose.model("Worklog", WorklogSchema);

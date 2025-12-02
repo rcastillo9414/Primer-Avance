@@ -1,6 +1,6 @@
 const express = require('express'); // Ayuda a crear rutas y servidores
 const router = express.Router(); // Nos ayuda a definir las rutas especificas 
-const Project = require('../models/Project.'); // Datos para proyectos en la base de datos
+const Project = require('../models/Project'); // Datos para proyectos en la base de datos
 const auth = require('../middleware/auth');  // Middleware para verificacion y autorizacion
 
 // Ruta para generar los proyectos 
@@ -45,7 +45,7 @@ router.post('/', auth, async(req, res) => {
 });
 
 // Ruta para actualizar proyectos existentes 
-router.pun('/:id', auth, async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     try { 
         // Confirma que el usuario tenga el rol Dept IT para actualizar 
         if (req.user.role !== 'Dept IT') return res.status(403).json({ msg: 'Prohibido credenciales insuficientes' });
